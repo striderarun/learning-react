@@ -1,0 +1,162 @@
+JSX Transpilation 
+------------------ 
+JSX is a syntax extension to Javascript.
+A browser cannot understand JSX syntax. A Transpiler is needed to translate JSX into Javascript.
+For React code to be understood by a browser, you need to have a transpiling step in which the JSX code gets converted to plain JavaScript code that a modern browser can work with.
+
+You can demonstrate this using Babel which is a JavaScript Compiler.
+Put this source JSX Code in Babel:
+
+function Heading(props) {
+    return <h1>{props.title}</h1>
+}
+
+Select classic React Runtime preset, and you will get the transpiled plain Javascript below:
+
+function Heading(props) {
+  return /*#__PURE__*/React.createElement("h1", null, props.title);
+}
+
+Parent-child data flow
+----------------------
+In React, data flow is a one-way street. Sometimes it's said that the data flow is unidirectional. Put differently, the data in React flows from a parent component to a child component. The data flow starts at the root and can flow to multiple levels of nesting, from the root component (parent component) to the child component, then the grandchild component, and further down the hierarchy.
+
+A React app consists of many components, organized as a component tree. The data flows from the root component to all the  components in the tree structure that require this data, using props.
+
+Props are immutable (cannot be changed).
+
+The two main benefits of this unidirectional data flow are that it allows developers to:
+
+comprehend the logic of React apps more quickly and 
+
+simplify the data flow. 
+
+Here’s a practical example of this:
+
+Imagine that the parent component passes a prop (name) to the child component. The child component then uses this prop to render the name in the UI.
+
+// Parent 
+function Dog() {
+    return (
+        <Puppy name="Max" bowlShape="square" bowlStatus="full" />
+    );
+};
+
+// Child
+function Puppy(props) {
+    return (
+        <div>
+            {props.name} has <Bowl bowlShape="square" bowlStatus="full" />
+        </div>
+    );
+};
+
+// Grandchild
+function Bowl(props) {
+    return (
+        <span>
+            {props.bowlShape}-shaped bowl, and it's currently {props.bowlStatus}
+        </span>
+    );
+};
+
+Hooks
+-----
+useState Hook
+------------
+
+import { useState } from 'react';
+
+export default function InputComponent() { 
+  const [inputText, setText] = useState('hello'); 
+
+  function handleChange(e) { 
+    setText(e.target.value); 
+  } 
+
+  return ( 
+    <> 
+      <input value={inputText} onChange={handleChange} /> 
+      <p>You typed: {inputText}</p> 
+      <button onClick={() => setText('hello')}> 
+        Reset 
+      </button> 
+    </> 
+  ); 
+} 
+
+inputText here is local state and is local to the InputComponent. This means that outside of this component, inputText is unavailable and unknown. In React, state is always referred to the local state of a component.
+Hooks also come with a set of rules, that you need to follow while using them. This applies to all React hooks, including the useState hook that you just learned.
+- You can only call hooks at the top level of your component or your own hooks. 
+- You cannot call hooks inside loops or conditions. 
+- You can only call hooks from React functions, and not regular JavaScript functions. 
+
+The useRef hook
+---------------
+We use the useRef hook to access a child element directly.
+
+When you invoke the useRef hook, it will return a ref object. The ref object has a property named current.
+function TextInputWithFocusButton() {
+  const inputEl = useRef(null);
+  const onButtonClick = () => {
+    // `current` points to the mounted text input element
+    inputEl.current.focus();
+  };
+  return (
+    <>
+      <input ref={inputEl} type="text" />
+      <button onClick={onButtonClick}>Focus the input</button>
+    </>
+  );
+}
+
+In addition to the useState hook, there are other hooks that come in handy such as useContext, useMemo, useRef, etc. 
+When you need to share logic and reuse the same logic across several components, you can extract the logic into a custom hook. 
+Custom hooks offer flexibility and can be used for a wide range of use-cases such as form handling, animation, timers, and many more. 
+
+Prop drilling
+--------------
+Prop drilling is a situation where you are passing data from a parent to a child component, then to a grandchild component, and so on, until it reaches a more distant component further down the component tree, where this data is required.
+
+Here is a very simple app that focuses on the process of props passing through several components.
+function Main(props) { 
+  return <Header msg={props.msg} />; 
+};
+
+function Header(props) { 
+  return ( 
+    <div style={{ border: "10px solid whitesmoke" }}> 
+      <h1>Header here</h1> 
+      <Wrapper msg={props.msg} /> 
+    </div> 
+  ); 
+};
+
+function Wrapper(props) { 
+  return ( 
+    <div style={{ border: "10px solid lightgray" }}> 
+      <h2>Wrapper here</h2> 
+      <Button msg={props.msg} /> 
+    </div> 
+  ); 
+};
+
+function Button(props) { 
+  return ( 
+    <div style={{ border: "20px solid orange" }}> 
+      <h3>This is the Button component</h3> 
+      <button onClick={() => alert(props.msg)}>Click me!</button> 
+    </div> 
+  ); 
+};
+
+function App() { 
+  return ( 
+    <Main  
+      msg="I passed through the Header and the Wrapper and I reached the Button component"  
+    /> 
+  ); 
+}; 
+
+export default App;
+
